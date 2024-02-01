@@ -78,8 +78,8 @@ const AdminPanel = ({ host, port, password }) => {
         handleSendCommand("kickplayer " + uid);
     }
 
-    const handleBandPlayer = () => {
-        handleSendCommand("banplayer " + uid);
+    const handleBandPlayer = (uid) => {
+        // handleSendCommand("banplayer " + uid);
     }
 
     const handleSave = () => {
@@ -144,6 +144,7 @@ const AdminPanel = ({ host, port, password }) => {
                     if (xcommand.indexOf("Broadcast") > -1) {
                         setshowNotif(true);
                         setNotifMessage("Broadcasted: " + broadcastMessage);
+                        SetBroadcastMessage("");
                     }
                 }
 
@@ -173,9 +174,6 @@ const AdminPanel = ({ host, port, password }) => {
                     <div>
                         <div>
                             <h3 className="text-lg leading-6 font-medium text-gray-900">Palworld Rcon Commands</h3>
-                            {/* <p className="mt-1 text-sm text-gray-500">
-                                This information will be displayed publicly so be careful what you share.
-                            </p> */}
                         </div>
 
                         <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
@@ -208,30 +206,6 @@ const AdminPanel = ({ host, port, password }) => {
                                 >
                                     Ban Player
                                 </button>
-                                {/* <button
-                                    onClick={handleSave}
-                                    type="button"
-                                    className="hs-tooltip-toggle text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-                                    Save
-                                    <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-1 px-2 bg-gray-900 text-white" role="tooltip">
-                                        Tooltip on top
-                                    </span>
-                                </button>
-
-                                <button
-                                    data-hs-overlay="#hs-basic-modal"
-                                    onClick={() => setKickPlayerOpen(true)}
-                                    type="button"
-                                    className="text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-                                    Kick Player
-                                </button>
-
-                                <button
-                                    data-hs-overlay="#hs-ban-modal"
-                                    type="button"
-                                    className="text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-                                    Ban Player
-                                </button> */}
                             </div>
 
                             <KickPlayer
@@ -269,8 +243,6 @@ const AdminPanel = ({ host, port, password }) => {
                                         className={`${commandLoading ? "cursor-not-allowed disabled" : ""} text-white w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600`}>Broadcast</button>
                                 </div>
                             </div>
-
-
                         </div>
                     </div>
                 </div>
