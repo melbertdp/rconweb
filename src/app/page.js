@@ -5,7 +5,6 @@ import { useState } from "react";
 import axios from "axios";
 import Loginform from "./components/loginform";
 import AdminPanel from "./components/adminPanel";
-import "@preline/overlay";
 
 export default function Home() {
 
