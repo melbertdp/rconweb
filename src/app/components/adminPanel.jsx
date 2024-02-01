@@ -78,7 +78,7 @@ const AdminPanel = ({ host, port, password }) => {
         handleSendCommand("kickplayer " + uid);
     }
 
-    const handleBandPlayer = () => {
+    const handleBandPlayer = (uid) => {
         handleSendCommand("banplayer " + uid);
     }
 
@@ -102,9 +102,7 @@ const AdminPanel = ({ host, port, password }) => {
             handleSendCommand("Broadcast " + broadcastMessage.replace(/[ ]/g, '_'));
         }
     }
-
-
-
+    
     const handleSendCommand = (xcommand = "showplayers") => {
 
         var bodyFormData = new FormData();
@@ -144,6 +142,7 @@ const AdminPanel = ({ host, port, password }) => {
                     if (xcommand.indexOf("Broadcast") > -1) {
                         setshowNotif(true);
                         setNotifMessage("Broadcasted: " + broadcastMessage);
+                        setBroadcastMessage("");
                     }
                 }
 
@@ -208,30 +207,6 @@ const AdminPanel = ({ host, port, password }) => {
                                 >
                                     Ban Player
                                 </button>
-                                {/* <button
-                                    onClick={handleSave}
-                                    type="button"
-                                    className="hs-tooltip-toggle text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-                                    Save
-                                    <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-1 px-2 bg-gray-900 text-white" role="tooltip">
-                                        Tooltip on top
-                                    </span>
-                                </button>
-
-                                <button
-                                    data-hs-overlay="#hs-basic-modal"
-                                    onClick={() => setKickPlayerOpen(true)}
-                                    type="button"
-                                    className="text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-                                    Kick Player
-                                </button>
-
-                                <button
-                                    data-hs-overlay="#hs-ban-modal"
-                                    type="button"
-                                    className="text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
-                                    Ban Player
-                                </button> */}
                             </div>
 
                             <KickPlayer
