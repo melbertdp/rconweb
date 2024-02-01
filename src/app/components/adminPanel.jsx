@@ -102,9 +102,7 @@ const AdminPanel = ({ host, port, password }) => {
             handleSendCommand("Broadcast " + broadcastMessage.replace(/[ ]/g, '_'));
         }
     }
-
-
-
+    
     const handleSendCommand = (xcommand = "showplayers") => {
 
         var bodyFormData = new FormData();
