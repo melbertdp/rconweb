@@ -84,7 +84,7 @@ const KickPlayer = ({ handleBandPlayer, open, setOpen }) => {
 
                                     onClick={kickPlayer}
                                 >
-                                    Kick Player
+                                    Ban Player
                                 </button>
                                 <button
                                     type="button"
