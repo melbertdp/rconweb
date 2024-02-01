@@ -79,7 +79,7 @@ const AdminPanel = ({ host, port, password }) => {
     }
 
     const handleBandPlayer = (uid) => {
-        // handleSendCommand("banplayer " + uid);
+        handleSendCommand("banplayer " + uid);
     }
 
     const handleSave = () => {
