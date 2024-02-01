@@ -1,6 +1,5 @@
 import { Inter } from "next/font/google";
 import PrelineScript from "./components/PrelineScript";
-
 import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });

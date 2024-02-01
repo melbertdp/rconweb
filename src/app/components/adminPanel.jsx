@@ -1,90 +1,291 @@
-const AdminPanel = () => {
+"use client";
+import { useEffect, useState, fragment, useRef, } from 'react'
+import OnlinePlayers from "./onlinePlayers";
+import axios from "axios";
+import moment from "moment";
+import KickPlayer from './kickPlayer';
+import BanPlayer from './banPlayer';
+import { comma } from 'postcss/lib/list';
+import Notif from './notif';
+
+const AdminPanel = ({ host, port, password }) => {
+
+    // const [host, setHost] = useState("");
+    // const [port, setPort] = useState("");
+    // const [password, setPassword] = useState("");
+
+    const [command, setCommand] = useState("");
+    const [players, setPlayers] = useState([]);
+    const [serverResponse, setServerResponse] = useState([]);
+    const [lastFetch, setLastFetch] = useState("-");
+    const [broadcastMessage, SetBroadcastMessage] = useState("");
+
+    const [kickPlayerOpen, setKickPlayerOpen] = useState(false)
+    const [banPlayerOpen, setBanPlayerOpen] = useState(false)
+    const [showNotif, setshowNotif] = useState(false);
+    const [notifMessage, setNotifMessage] = useState(false);
+
+    const [isCommandsDisabled, setIsCommandsDisabled] = useState(false);
+    const [commandLoading, setCommandLoading] = useState(false);
+
+    useEffect(() => {
+        handleSendCommand("showplayers");
+
+        let timer1 = setInterval(() => {
+            handleSendCommand("showplayers");
+        }, 10000);
+
+        return () => {
+            clearInterval(timer1);
+        };
+    }, [])
+
+    useEffect(() => {
+        if (showNotif) {
+            setTimeout(() => {
+                setshowNotif(false)
+            }, 3000);
+        }
+    }, [showNotif])
+
+
+    const splitArrayIntoObjects = (arr) => {
+        let result = [];
+
+        for (let i = 0; i < arr.length; i += 3) {
+            let group = arr.slice(i, i + 3);
+
+            if (group.length === 3) {
+                let obj = {
+                    name: group[0].replace(/[\n]/g, '').replace(/[\x00]/g, '').replace(/^\s+|\s+$/gm, ''),
+                    uid: group[1].replace(/[\n]/g, '').replace(/[\x00]/g, '').replace(/^\s+|\s+$/gm, ''),
+                    steamid: group[2].replace(/[\n]/g, '').replace(/[\x00]/g, '').replace(/^\s+|\s+$/gm, '')
+                };
+
+                if (obj.name.length > 0) {
+                    result.push(obj);
+                }
+
+            }
+        }
+
+        result.shift();
+
+        return result;
+    }
+
+    const handleKickPlayer = (uid) => {
+        handleSendCommand("kickplayer " + uid);
+    }
+
+    const handleBandPlayer = () => {
+        handleSendCommand("banplayer " + uid);
+    }
+
+    const handleSave = () => {
+        handleSendCommand("save");
+    }
+
+    const handleButtonDisabledTimeout = () => {
+
+        setCommandLoading(false); //for broadcast
+
+        setTimeout(() => {
+            setIsCommandsDisabled(false)
+        }, 5000);
+    }
+
+    const handleBroadcast = () => {
+        if (broadcastMessage.lenght === 0) {
+            alert("Broadcast message cannot be blank");
+        } else {
+            handleSendCommand("Broadcast " + broadcastMessage.replace(/[ ]/g, '_'));
+        }
+    }
+
+
+
+    const handleSendCommand = (xcommand = "showplayers") => {
+
+        var bodyFormData = new FormData();
+        bodyFormData.append('host', host);
+        bodyFormData.append('port', port);
+        bodyFormData.append('password', password);
+        bodyFormData.append('command', xcommand);
+
+        if (xcommand != "showplayers") {
+            setIsCommandsDisabled(true);
+            setCommandLoading(true)
+        }
+
+        axios({
+            method: "post",
+            url: `${process.env.NEXT_PUBLIC_API_PORT}/commands.php`,
+            data: bodyFormData,
+            headers: { "Content-Type": "multipart/form-data" },
+        })
+            .then(function (response) {
+                //handle success
+
+                if (xcommand == "showplayers") {
+                    var x = response.data.replace(/[\n\x00]/g, ',').split(",");
+                    setPlayers(splitArrayIntoObjects(x));
+                    setServerResponse(["successfully fetched list of players", ...serverResponse])
+                    setLastFetch(moment().format("MM-DD-yyyy hh:mm:ss"));
+                } else {
+                    var x = response.data.replace(/[\x00]/g, '').replace(/^\s+|\s+$/gm, '')
+                    setServerResponse([x, ...serverResponse]);
+
+                    if (xcommand == "save") {
+                        setshowNotif(true);
+                        setNotifMessage("Save Complete");
+                    }
+
+                    if (xcommand.indexOf("Broadcast") > -1) {
+                        setshowNotif(true);
+                        setNotifMessage("Broadcasted: " + broadcastMessage);
+                    }
+                }
+
+                if (xcommand != "showplayers") {
+                    handleButtonDisabledTimeout();
+                }
+
+
+            })
+            .catch(function (response) {
+                //handle error
+                console.log("err", response);
+            });
+    }
+
     return (
-        <div class="max-w-[85rem] px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto">
-            {/* <!-- Grid --> */}
-            <div class="grid md:grid-cols-5 gap-10">
-                <div class="md:col-span-2">
-                    <div class="max-w-xs">
-                        <h2 class="text-2xl font-bold md:text-4xl md:leading-tight dark:text-white">Frequently</h2>
-                        <p class="mt-1 hidden md:block text-gray-600 dark:text-gray-400">Answers to the most frequently asked questions.</p>
-                    </div>
-                </div>
-                {/* <!-- End Col --> */}
+        <div className="w-7/12 px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto shrink-0">
 
-                <div class="md:col-span-3">
-                    <div class="relative">
-                        {/* <!-- Card --> */}
-                        <div class="flex flex-col border rounded-xl p-4 sm:p-6 lg:p-10 dark:border-gray-700">
-                            <h2 class="text-xl font-semibold text-gray-800 dark:text-gray-200">
-                                Fill in the form
-                            </h2>
+            <Notif
+                notifMessage={notifMessage}
+                showNotif={showNotif}
+                setShowNotif={setshowNotif}
+            />
 
-                            <form>
-                                <div class="mt-6 grid gap-4 lg:gap-6">
-                                    {/* <!-- Grid --> */}
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-                                        <div>
-                                            <label for="hs-firstname-hire-us-1" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">First Name</label>
-                                            <input type="text" name="hs-firstname-hire-us-1" id="hs-firstname-hire-us-1" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"/>
-                                        </div>
-
-                                        <div>
-                                            <label for="hs-lastname-hire-us-1" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Last Name</label>
-                                            <input type="text" name="hs-lastname-hire-us-1" id="hs-lastname-hire-us-1" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600" />
-                                        </div>
-                                    </div>
-                                    {/* <!-- End Grid --> */}
-
-                                    <div>
-                                        <label for="hs-work-email-hire-us-1" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Work Email</label>
-                                        <input type="email" name="hs-work-email-hire-us-1" id="hs-work-email-hire-us-1" autocomplete="email" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600" />
-                                    </div>
-
-                                    {/* <!-- Grid --> */}
-                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
-                                        <div>
-                                            <label for="hs-company-hire-us-1" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Company</label>
-                                            <input type="text" name="hs-company-hire-us-1" id="hs-company-hire-us-1" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600" />
-                                        </div>
-
-                                        <div>
-                                            <label for="hs-company-website-hire-us-1" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Company Website</label>
-                                            <input type="text" name="hs-company-website-hire-us-1" id="hs-company-website-hire-us-1" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600" />
-                                        </div>
-                                    </div>
-                                    {/* <!-- End Grid --> */}
-
-                                    <div>
-                                        <label for="hs-about-hire-us-1" class="block mb-2 text-sm text-gray-700 font-medium dark:text-white">Details</label>
-                                        <textarea id="hs-about-hire-us-1" name="hs-about-hire-us-1" rows="4" class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"></textarea>
-                                    </div>
-                                </div>
-                                {/* <!-- End Grid --> */}
-
-                                {/* <!-- Checkbox --> */}
-                                <div class="mt-3 flex">
-                                    <div class="flex">
-                                        <input id="remember-me" name="remember-me" type="checkbox" class="shrink-0 mt-1.5 border-gray-200 rounded text-blue-600 pointer-events-none focus:ring-blue-500 dark:bg-gray-800 dark:border-gray-700 dark:checked:bg-blue-500 dark:checked:border-blue-500 dark:focus:ring-offset-gray-800" />
-                                    </div>
-                                    <div class="ms-3">
-                                        <label for="remember-me" class="text-sm text-gray-600 dark:text-gray-400">By submitting this form I have read and acknowledged the <a class="text-blue-600 decoration-2 hover:underline font-medium" href="#">Privacy policy</a></label>
-                                    </div>
-                                </div>
-                                {/* <!-- End Checkbox --> */}
-
-                                <div class="mt-6 grid">
-                                    <button type="submit" class="w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">Send inquiry</button>
-                                </div>
-                            </form>
-
-                          
+            <form className="space-y-8 divide-y divide-gray-200 border rounded-xl py-5 px-5">
+                <div className="space-y-8 divide-y divide-gray-200">
+                    <div>
+                        <div>
+                            <h3 className="text-lg leading-6 font-medium text-gray-900">Palworld Rcon Commands</h3>
+                            {/* <p className="mt-1 text-sm text-gray-500">
+                                This information will be displayed publicly so be careful what you share.
+                            </p> */}
                         </div>
-                        {/* <!-- End Card --> */}
+
+                        <div className="mt-6 grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                            <div className="sm:col-span-6">
+
+                                <button
+                                    disabled={isCommandsDisabled}
+                                    onClick={handleSave}
+                                    type="button"
+                                    class={`${isCommandsDisabled ? 'cursor-not-allowed bg-gray-400 hover:bg-gray-500' : 'bg-gray-800 hover:bg-gray-900'} w-60 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700`}
+                                >
+                                    Save
+                                </button>
+
+                                <button
+                                    disabled={isCommandsDisabled}
+                                    data-hs-overlay="#hs-basic-modal"
+                                    onClick={() => setKickPlayerOpen(true)}
+                                    type="button"
+                                    class={`${isCommandsDisabled ? 'cursor-not-allowed bg-gray-400 hover:bg-gray-500' : 'bg-gray-800 hover:bg-gray-900'} w-60 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700`}
+                                >
+                                    Kick Payer
+                                </button>
+                                <button
+                                    disabled={isCommandsDisabled}
+                                    data-hs-overlay="#hs-ban-modal"
+                                    onClick={() => setBanPlayerOpen(true)}
+                                    type="button"
+                                    class={`${isCommandsDisabled ? 'cursor-not-allowed bg-gray-400 hover:bg-gray-500' : 'bg-gray-800 hover:bg-gray-900'} w-60 text-white focus:outline-none focus:ring-4 focus:ring-gray-300 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:hover:bg-gray-700 dark:focus:ring-gray-700 dark:border-gray-700`}
+                                >
+                                    Ban Player
+                                </button>
+                                {/* <button
+                                    onClick={handleSave}
+                                    type="button"
+                                    className="hs-tooltip-toggle text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+                                    Save
+                                    <span className="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-1 px-2 bg-gray-900 text-white" role="tooltip">
+                                        Tooltip on top
+                                    </span>
+                                </button>
+
+                                <button
+                                    data-hs-overlay="#hs-basic-modal"
+                                    onClick={() => setKickPlayerOpen(true)}
+                                    type="button"
+                                    className="text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+                                    Kick Player
+                                </button>
+
+                                <button
+                                    data-hs-overlay="#hs-ban-modal"
+                                    type="button"
+                                    className="text-center w-1/3 py-3 px-4 inline-flex items-center gap-x-2 -ms-px first:rounded-s-lg first:ms-0 last:rounded-e-lg text-sm font-medium focus:z-10 border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-white dark:hover:bg-gray-800 dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600">
+                                    Ban Player
+                                </button> */}
+                            </div>
+
+                            <KickPlayer
+                                handleKickPlayer={handleKickPlayer}
+                                open={kickPlayerOpen}
+                                setOpen={setKickPlayerOpen}
+                            />
+
+                            <BanPlayer
+                                handleBandPlayer={handleBandPlayer}
+                                open={banPlayerOpen}
+                                setOpen={setBanPlayerOpen}
+                            />
+
+                            <div className="sm:col-span-6">
+                                <label for="hs-about-hire-us-1" className="block mb-2 text-sm text-slate-700 font-medium dark:text-slate-700">Broadcast Message</label>
+                                <textarea
+                                    disabled={commandLoading ? true : false}
+                                    value={broadcastMessage}
+                                    maxLength={50}
+                                    onChange={(e) => SetBroadcastMessage(e.target.value)}
+                                    id="hs-about-hire-us-1"
+                                    name="hs-about-hire-us-1"
+                                    rows="4"
+                                    className={`${commandLoading ? "cursor-not-allowed disabled" : ""} py-3 px-4 block w-full border-1 border-solid border-2 border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none`}></textarea>
+                                <p className='py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200'>
+                                    {"There is currently a Game Server bug that prevents sending broadcasts with spaces."}
+                                    <br />
+                                    {"This Command replace spaces with underscores: Hello from admin to Hello_from_admin"}
+                                </p>
+                                <div className="mt-6 grid">
+                                    <button
+                                        onClick={handleBroadcast}
+                                        type="button"
+                                        className={`${commandLoading ? "cursor-not-allowed disabled" : ""} text-white w-full py-3 px-4 inline-flex justify-center items-center gap-x-2 text-sm font-semibold rounded-lg border border-transparent bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:pointer-events-none dark:focus:outline-none dark:focus:ring-1 dark:focus:ring-gray-600`}>Broadcast</button>
+                                </div>
+                            </div>
+
+
+                        </div>
                     </div>
                 </div>
+            </form >
 
+
+            <div className="mt-20">
+                <div className='flex flex-row justify-between'>
+                    <h2 className="text-lg font-bold md:text-2xl md:leading-tight text-gray-700">Online Players</h2>
+                    <p className='text-center px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800 dark:text-gray-200'>Last Refreshed: {lastFetch}</p>
+                </div>
+                <OnlinePlayers players={players} />
             </div>
-        </div>
+
+        </div >
     );
 }
 
