@@ -1,5 +1,4 @@
 import { Inter } from "next/font/google";
-import { GoogleAnalytics } from '@next/third-parties/google'
 import PrelineScript from "./components/PrelineScript";
 import "./globals.css";
 
@@ -15,7 +14,6 @@ export default function RootLayout({ children, }) {
     <html>
       <body className={inter.className}>{children}</body>
       <PrelineScript />
-      <GoogleAnalytics gaId="G-81JJ9HSB3N" />
     </html>
   );
 }

@@ -5,6 +5,7 @@ import { useState } from "react";
 import axios from "axios";
 import Loginform from "./components/loginform";
 import AdminPanel from "./components/adminPanel";
+import GoogleAnalytics from "./components/GoogleAnalytics";
 
 export default function Home() {
 
@@ -47,6 +48,7 @@ export default function Home() {
 
   return (
     <div className="h-full bg-white">
+      <GoogleAnalytics />
 
       {
         showToast && (
