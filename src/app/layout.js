@@ -1,4 +1,5 @@
 import { Inter } from "next/font/google";
+import { Analytics } from '@vercel/analytics/react';
 import PrelineScript from "./components/PrelineScript";
 import "./globals.css";
 
@@ -14,6 +15,7 @@ export default function RootLayout({ children, }) {
     <html>
       <body className={inter.className}>{children}</body>
       <PrelineScript />
+      <Analytics />
     </html>
   );
 }
