@@ -1,4 +1,5 @@
-const LoginForm = ({ handleSubmit, setPort, setHost, setPassword }) => {
+const LoginForm = ({ handleSubmit, setPort, setHost, setPassword, setRemember, host, port, password }) => {
+
     return (
         <main className="w-full max-w-md mx-auto p-6">
             <div className="mt-0 bg-white border border-gray-200 rounded-xl shadow-sm dark:bg-gray-800 dark:border-gray-700">
@@ -16,6 +17,7 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword }) => {
                                     <label for="email" className="block text-sm mb-2 dark:text-white">Server Host IP</label>
                                     <div className="relative">
                                         <input
+                                            value={host}
                                             type="text"
                                             id="host"
                                             name="host"
@@ -37,6 +39,7 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword }) => {
                                     </label>
                                     <div className="relative">
                                         <input
+                                            value={port}
                                             type="text"
                                             id="port"
                                             name="port"
@@ -64,6 +67,7 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword }) => {
                                     </label>
                                     <div className="relative">
                                         <input
+                                            value={password}
                                             type="password"
                                             id="password"
                                             name="password"
@@ -81,6 +85,33 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword }) => {
                                 </div>
                                 {/* <!-- End Form Group --> */}
 
+                                <div>
+                                    {/*  */}
+                                    <div className="relative">
+
+                                        <div className="flex flex-row">
+                                            <input
+                                                id="remember"
+                                                type="checkbox"
+                                                onChange={(e) => setRemember(e.target.value)}
+                                            />
+                                            <label
+                                                for="remember"
+                                                className="block text-sm ml-2 dark:text-white"
+                                            >
+                                                Remeber Me
+                                            </label>
+                                            {/* <label for="" >Remember Me</label> */}
+                                        </div>
+                                        <div className="hidden absolute inset-y-0 end-0 flex items-center pointer-events-none pe-3">
+                                            <svg className="h-5 w-5 text-red-500" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
+                                                <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM8 4a.905.905 0 0 0-.9.995l.35 3.507a.552.552 0 0 0 1.1 0l.35-3.507A.905.905 0 0 0 8 4zm.002 6a1 1 0 1 0 0 2 1 1 0 0 0 0-2z" />
+                                            </svg>
+                                        </div>
+                                    </div>
+                                    <p className="hidden text-xs text-red-600 mt-2" id="confirm-password-error">Password does not match the password</p>
+                                </div>
+
                                 <button
                                     type="button"
                                     onClick={handleSubmit}
@@ -95,7 +126,7 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword }) => {
                             {"This tool will display the players on your Palworld server, as long as you have RCON enabled and a Server Admin Password."}
                             <br />
                             <br />
-                            {"This app doesn't have any storage backend, so it only works while your browser is on this page and connected."}
+                            <p>This app {`doesn't`} have any storage backend, so it only works while your browser is on this page and connected. <strong>Remember me</strong> functionality only uses browser localstorage</p>
                         </div>
                     </div>
                 </div>

@@ -1,7 +1,8 @@
 "use client";
 import Image from "next/image";
 import Toast from "./components/toast";
-import { useState } from "react";
+import CryptoJS from "crypto-js";
+import { useEffect, useState } from "react";
 import axios from "axios";
 import Loginform from "./components/loginform";
 import AdminPanel from "./components/adminPanel";
@@ -14,12 +15,40 @@ export default function Home() {
   const [host, setHost] = useState("");
   const [port, setPort] = useState("");
   const [password, setPassword] = useState("");
+  const [remember, setRemember] = useState(false);
+
+  useEffect(() => {
+    const isStored = localStorage.getItem("palworldtools");
+
+
+    if (isStored) {
+
+      try {
+        var ciphertext = CryptoJS.AES.decrypt(isStored, process.env.NEXT_PUBLIC_ENCRYPT);
+        var originalText = ciphertext.toString(CryptoJS.enc.Utf8);
+
+        var fetchedJson = JSON.parse(originalText);
+
+        // Check if all required keys are present in the fetched JSON
+        const requiredKeys = ['host', 'port', 'password'];
+
+        if (requiredKeys.every((key) => fetchedJson.hasOwnProperty(key))) {
+          setHost(fetchedJson.host);
+          setPort(fetchedJson.port);
+          setPassword(fetchedJson.password);
+        }
+      } catch (error) {
+        // Code to handle the exception
+        localStorage.removeItem("palworldtools");
+        console.error('An error occurred:', error.message);
+      }
+    }
+  }, [])
 
   const handleSubmit = () => {
 
-    if (host.length === 0 || port.length === 0 || password.length === 0) {
-      return;
-    }
+    // setIsConnected(true);
+
 
     var bodyFormData = new FormData();
     bodyFormData.append('host', host);
@@ -35,7 +64,15 @@ export default function Home() {
       .then(function (response) {
         //handle success
         console.log("response", response);
+
+        var creds = JSON.stringify({ "host": host, "port": port, "password": password });
+        var ciphertext = CryptoJS.AES.encrypt(creds, process.env.NEXT_PUBLIC_ENCRYPT).toString();
+
+        if (remember) {
+          localStorage.setItem("palworldtools", ciphertext);
+        }
         setIsConnected(true);
+
       })
       .catch(function (response) {
         //handle error
@@ -44,6 +81,12 @@ export default function Home() {
         console.log("err", response);
       });
   }
+
+  useEffect(() => {
+    if (showToast) {
+      setShowToast(false);
+    }
+  }, [isConnected])
 
 
   return (
@@ -65,10 +108,14 @@ export default function Home() {
         {
           !isConnected ?
             <Loginform
+              host={host}
+              port={port}
+              password={password}
               setPort={setPort}
               setHost={setHost}
               setPassword={setPassword}
               handleSubmit={handleSubmit}
+              setRemember={setRemember}
             />
             :
             <AdminPanel
