@@ -1,4 +1,10 @@
+"use client";
 const DcBot = () => {
+
+    const handleButtonClick = () => {
+        window.open(process.env.NEXT_PUBLIC_DC_BOT);
+    }
+
     return (
         <div className="w-7/12 px-4 py-10 sm:px-6 lg:px-8 lg:py-14 mx-auto shrink-0">
 
@@ -9,7 +15,8 @@ const DcBot = () => {
                 Run RCON commands from your discord
             </div>
             <button
-                class="flex items-center bg-white border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
+                onClick={handleButtonClick}
+                class="mt-5 flex items-center bg-white border border-gray-300 rounded-lg shadow-md px-6 py-2 text-sm font-medium text-gray-800 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
 
                 <svg class="h-6 w-6 mr-2" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink"
                     width="800px" height="800px" viewBox="0 -28.5 256 256" version="1.1" preserveAspectRatio="xMidYMid">
@@ -25,7 +32,50 @@ const DcBot = () => {
             </button>
 
             <div className="mt-5">
-                <p>Set up bot by running <i className="font-bold">/initialize_bot</i> Enter your Host IP, Port and Admin password</p>
+                <p>Set up bot by running <span className="font-bold">/initialize_bot</span> Enter your Host IP, Port and Admin password</p>
+
+                <div className="mt-5">
+                    <ul class="space-y-4 text-gray-500 list-disc list-inside dark:text-gray-400">
+                        <li>
+                            /ping
+                            <ol class="ps-5 mt-2 space-y-1 list-inside">
+                                <li>Check the bot connectivity to server</li>
+                            </ol>
+                        </li>
+                        <li>
+                            /broadcast
+                            <ul class="ps-5 mt-2 space-y-1 list-inside">
+                                <li>Broadcast message to server</li>
+                            </ul>
+                        </li>
+                        <li>
+                            /save
+                            <ul class="ps-5 mt-2 space-y-1 list-inside">
+                                <li>Save current server state</li>
+                            </ul>
+                        </li>
+                        <li>
+                            /show-players
+                            <ul class="ps-5 mt-2 space-y-1 list-inside">
+                                <li>Show list of loggeg-in on the server</li>
+                            </ul>
+                        </li>
+                        <li>
+                            /kick
+                            <ul class="ps-5 mt-2 space-y-1 ist-inside">
+                                <li>Kick Player to the server</li>
+                            </ul>
+                        </li>
+                        <li>
+                            /ban
+                            <ul class="ps-5 mt-2 space-y-1 list-inside">
+                                <li>Ban Player to the server</li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                </div>
+
             </div>
         </div >
 
