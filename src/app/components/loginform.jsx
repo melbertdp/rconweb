@@ -1,4 +1,6 @@
-const LoginForm = ({ handleSubmit, setPort, setHost, setPassword, setRemember, host, port, password }) => {
+import Link from 'next/link'
+
+const LoginForm = ({ handleSubmit, setPort, setHost, setPassword, setRemember, host, port, password, remember }) => {
 
     return (
         <main className="w-full max-w-md mx-auto p-6">
@@ -6,6 +8,11 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword, setRemember, h
                 <div className="p-4 sm:p-7">
                     <div className="text-center">
                         <h1 className="block text-2xl font-bold text-gray-800 dark:text-white">Palworld Admin Tool</h1>
+                    </div>
+
+                    <div className="text-left mt-5">
+                        <h1 className="block text-1xl font-bold text-red-500 dark:text-white">Discord bot now available in beta!</h1>
+                        <Link className='text-blue-500 font-bold' href="/discord-bot">Discord Bot</Link>
                     </div>
 
                     <div className="mt-5">
@@ -93,6 +100,7 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword, setRemember, h
                                             <input
                                                 id="remember"
                                                 type="checkbox"
+                                                checked={remember}
                                                 onChange={(e) => setRemember(e.target.value)}
                                             />
                                             <label
@@ -128,6 +136,8 @@ const LoginForm = ({ handleSubmit, setPort, setHost, setPassword, setRemember, h
                             <br />
                             <p>This app {`doesn't`} have any storage backend, so it only works while your browser is on this page and connected. <strong>Remember me</strong> functionality only uses browser localstorage</p>
                         </div>
+
+
                     </div>
                 </div>
             </div>

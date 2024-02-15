@@ -48,8 +48,6 @@ export default function Home() {
   const handleSubmit = () => {
 
     // setIsConnected(true);
-
-
     var bodyFormData = new FormData();
     bodyFormData.append('host', host);
     bodyFormData.append('port', port);
@@ -70,6 +68,8 @@ export default function Home() {
 
         if (remember) {
           localStorage.setItem("palworldtools", ciphertext);
+        }else{
+          localStorage.removeItem("palworldtools");
         }
         setIsConnected(true);
 
@@ -111,6 +111,7 @@ export default function Home() {
               host={host}
               port={port}
               password={password}
+              remember={remember}
               setPort={setPort}
               setHost={setHost}
               setPassword={setPassword}
